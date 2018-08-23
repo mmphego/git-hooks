@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Git pre-commit hook, that will automagically flake8 or PEP8 format your code.
+# Author: Mpho Mphego <mmphego@ska.ac.za>
+
+set -i
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+BLUE=$(tput setaf 4)
+NORMAL=$(tput sgr0)
+
+# Allows us to read user input below, assigns stdin to keyboard
+exec < /dev/tty
+
+branch=$(git rev-parse --abbrev-ref HEAD | grep  -e 'master')
+if [ $? -eq 0 ]; then
+    printf "${RED}Please switch to another branch other than master\n"
+    printf "You can by-pass this hook by appending -n or --no-verify\n";
+    printf "eg: git commit -a --no-verify\n ";
+    printf " -----------NOT RECOMMENDED----------- ${NORMAL}\n";
+    exit 1
+fi
+
+for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.py$'); do
+    printf "${GREEN}Checking $file for syntax errors${NORMAL}\n"
+    $(which pycompile) $file
+    $(which flake8) $file --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265 --count;
+    if [ $? != 0 ]; then
+        printf "${RED}Fails PyFlake check!\n\n"
+        printf "Do you wish to fix the errors yourself or you want them automagically fixed?\n"
+        printf "Enter Yes -> 1 or No -> 2${NORMAL}\n"
+        select yn in "Yes" "No"; do
+        case $yn in
+                Yes ) $(which autopep8) -i -a -a --ignore=E501,E303,F405,F403,E265 $file;
+                     printf "${GREEN}FIXED....${NORMAL}\n";
+                     break;;
+                No ) printf "${RED}You can by-pass this hook by appending -n or --no-verify\n";
+                     printf "eg: git commit -a --no-verify\n ";
+                     printf " -----------NOT RECOMMENDED----------- ${NORMAL}\n";
+                     exit 1;;
+            esac
+        done
+    else
+        printf "${GREEN}Passed PyFlake code check.${NORMAL}\n"
+        exit 0
+    fi
+done
+exit 0
