@@ -10,6 +10,7 @@ NORMAL=$(tput sgr0)
 
 declare -a PYTHON_PKG="(corr2 casperfpga mkat_fpga)"
 REPO=$(basename `git rev-parse --show-toplevel`) # get current repository name
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
 HOST="cmc3.cbf.mkat.karoo.kat.ac.za"
 PORT="8080"
 TOKEN="cbftests"
@@ -24,7 +25,7 @@ function rprint (){
 
 if curl --output /dev/null --silent --head --fail "http://${HOST}:${PORT}"; then
     for pkg in "${PYTHON_PKG[@]}"; do
-        if [ "${pkg}" = "${REPO}" ]; then
+        if [ "${pkg}" = "${REPO}" ] && [ "${BRANCH}" = "devel" ]; then
             gprint "Running tests to check for new bugs on ${REPO}";
             gprint "Open: http://${HOST}:${PORT} to see progress...";
             curl -X POST "http://${HOST}:${PORT}/generic-webhook-trigger/invoke?token=${TOKEN}" > /dev/null 2>&1;
