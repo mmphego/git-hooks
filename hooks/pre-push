@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+HOST=
+PORT='8080'
+TOKEN='mkatfpgatests'
+
+curl -X POST 'http://${HOST}:${PORT}/generic-webhook-trigger/invoke?token=${TOKEN}' > /dev/null 2>&1
