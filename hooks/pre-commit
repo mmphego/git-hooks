@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Git pre-commit hook, that will automagically flake8 or PEP8 format your code.
-# Author: Mpho Mphego <mmphego@ska.ac.za>
+# Author: Mpho Mphego <mpho112@gmail.com>
 
 set -i
 RED=$(tput setaf 1)
@@ -30,7 +30,7 @@ for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.py$')
         printf "Enter Yes -> 1 or No -> 2${NORMAL}\n"
         select yn in "Yes" "No"; do
         case $yn in
-                Yes ) $(which autopep8) -i -a -a --ignore=E501,E303,F405,F403,E265 $file;
+                Yes ) $(which autopep8) -i -a -a --ignore=E501,E303,F405,F403,E265,E128 $file;
                      printf "${GREEN}FIXED....${NORMAL}\n";
                      break;;
                 No ) printf "${RED}You can by-pass this hook by appending -n or --no-verify\n";
