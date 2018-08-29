@@ -22,8 +22,8 @@ function rprint (){
 branch=$(git rev-parse --abbrev-ref HEAD | grep  -e 'master');
 if [ $? -eq 0 ]; then
     rprint "Please switch to another branch other than master";
-    rprint "You can by-pass this hook by appending -n or --no-verify\n";
-    rprint "eg: git commit -a --no-verify\n ";
+    rprint "You can by-pass this hook by appending -n or --no-verify";
+    rprint "eg: git commit -a --no-verify";
     rprint " -----------NOT RECOMMENDED-----------";
     exit 1
 fi
@@ -33,7 +33,7 @@ for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.py$')
     $(which pycompile) $file;
     $(which flake8) $file --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265 --count;
     if [ $? != 0 ]; then
-        rprint "Fails Lint/Flake Test!!!!\n";
+        rprint "Fails Lint/Flake Test!!!!";
         rprint "Do you wish to fix the errors yourself or you want them automagically fixed?";
         rprint "Enter Yes -> 1 or No -> 2";
         select yn in "Yes" "No"; do
@@ -42,8 +42,8 @@ for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.py$')
                      gprint "FIXED....";
                      break;;
                 No ) RANDTIME=$[($RANDOM%10)+1];
-                     rprint "Nonconformist will be punished.";
-                     rprint "Wait ${RANDTIME}s.....";
+                     rprint "Nonconformists will be punished.";
+                     rprint "Wait ${RANDTIME}s for solution...";
                      sleep "${RANDTIME}s";
                      rprint "You can by-pass this hook by appending -n or --no-verify";
                      rprint "eg: git commit --no-verify";
