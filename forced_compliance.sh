@@ -26,8 +26,8 @@ cd / || exit 1;
 function delete_hooks() {
     while IFS= read -r -d '' file; do
         gprint "Deleting ${file} hooks";
-        chattr -i "${file}/hooks/*";
-        rm -vrf "${file}/hooks/*";
+        chattr -Ri "${file}/hooks/"*;
+        rm -vrf "${file}/hooks/"*;
     done < <(find / -type d -name '.git' -print0)
 }
 
@@ -35,7 +35,7 @@ function install_hooks(){
     while IFS= read -r -d '' file; do
         cd "${file}" && cd ..;
         git init -q;
-        chattr +i "${file}/hooks/*";
+        chattr +Ri "${file}/hooks/"*;
         gprint "${file}: Hook installed";
         if [ -f "${file}/hooks/pre-commit" ]; then
             gprint "Hook created!!!"
