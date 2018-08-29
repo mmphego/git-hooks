@@ -36,11 +36,8 @@ else
     # Show a helpful error
     if [ "$1" == '' ]; then
         echo "'$1' is not a known function name" >&2
-        echo "Available functions: delete_hooks and install_hooks";
-        echo "Usage: sudo $0 delete_hooks or $0 install_hooks"
-    else
-        echo "Available functions: delete_hooks and install_hooks";
-        echo "Usage: sudo $0 delete_hooks or $0 install_hooks"
     fi
+    echo "Available functions: delete_hooks and install_hooks";
+    echo "Usage: sudo $0 delete_hooks or $0 install_hooks"
     exit 1
 fi
