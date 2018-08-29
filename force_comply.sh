@@ -9,23 +9,40 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-cd /;
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+NORMAL=$(tput sgr0)
+
+function gprint (){
+    printf "%s$1%s\n" "${GREEN}" "${NORMAL}";
+}
+
+function rprint (){
+    printf "%s$1%s\n" "${RED}" "${NORMAL}";
+}
+
+cd / || exit 1;
+
 function delete_hooks() {
-    for i in $(find / -type d -name '.git'); do
-        echo "Deleting ${i} hooks" 1>&2;
-        chattr -i $i/hooks/*;
-        rm -vrf $i/hooks/*;
-    done
+    while IFS= read -r -d '' file; do
+        gprint "Deleting ${file} hooks";
+        chattr -i "${file}/hooks/*";
+        rm -vrf "${file}/hooks/*";
+    done < <(find / -type d -name '.git' -print0)
 }
 
 function install_hooks(){
-    for i in $(find / -type d -name '.git'); do
-        cd $i && cd ..;
-        git init;
-        chattr +i $i/hooks/*;
-        echo "$i: Hook installed" 1>&2;
-        head -2 $i/hooks/pre-commit;
-    done
+    while IFS= read -r -d '' file; do
+        cd "${file}" && cd ..;
+        git init -q;
+        chattr +i "${file}/hooks/*";
+        gprint "${file}: Hook installed";
+        if [ -f "${file}/hooks/pre-commit" ]; then
+            gprint "Hook created!!!"
+        else
+            rprint "Failed to create a hook"
+        fi
+    done < <(find / -type d -name '.git' -print0)
 }
 
 # Check if the function exists (bash specific)
@@ -35,9 +52,9 @@ if declare -f "$1" > /dev/null; then
 else
     # Show a helpful error
     if [ "$1" == '' ]; then
-        echo "'$1' is not a known function name" >&2
+        rprint "'$1' is not a known function name" >&2
     fi
-    echo "Available functions: delete_hooks and install_hooks";
-    echo "Usage: sudo $0 delete_hooks or $0 install_hooks"
+    gprint "Available functions: delete_hooks and install_hooks";
+    gprint "Usage: sudo $0 delete_hooks or $0 install_hooks"
     exit 1
 fi

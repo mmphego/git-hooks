@@ -16,11 +16,11 @@ PORT="8080"
 TOKEN="cbftests"
 
 function gprint (){
-    printf "${GREEN}$1 ${NORMAL}\n";
+    printf "%s$1%s\n" "${GREEN}" "${NORMAL}";
 }
 
 function rprint (){
-    printf "${RED}$1 ${NORMAL}\n";
+    printf "%s$1%s\n" "${RED}" "${NORMAL}";
 }
 
 if curl --output /dev/null --silent --head --fail "http://${HOST}:${PORT}"; then

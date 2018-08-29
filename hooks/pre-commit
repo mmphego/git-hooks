@@ -5,22 +5,20 @@
 set -i
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
-BLUE=$(tput setaf 4)
 NORMAL=$(tput sgr0)
 
 # Allows us to read user input below, assigns stdin to keyboard
 exec < /dev/tty
 
 function gprint (){
-    printf "${GREEN}$1 ${NORMAL}\n";
+    printf "%s$1%s\n" "${GREEN}" "${NORMAL}";
 }
 
 function rprint (){
-    printf "${RED}$1 ${NORMAL}\n";
+    printf "%s$1%s\n" "${RED}" "${NORMAL}";
 }
 
-branch=$(git rev-parse --abbrev-ref HEAD | grep  -e 'master');
-if [ $? -eq 0 ]; then
+if git rev-parse --abbrev-ref HEAD | grep -e 'master' > /dev/null 2>&1; then
     rprint "Please switch to another branch other than master";
     rprint "You can by-pass this hook by appending -n or --no-verify\n";
     rprint "eg: git commit -a --no-verify\n ";
@@ -29,19 +27,19 @@ if [ $? -eq 0 ]; then
 fi
 
 for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.py$'); do
-    gprint "Checking $file for syntax errors";
-    $(which pycompile) $file;
-    $(which flake8) $file --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265 --count;
+    gprint "Checking ${file} for syntax errors";
+    $(command -v pycompile) "${file}";
+    $(command -v flake8) "${file}" --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265 --count;
     if [ $? != 0 ]; then
         rprint "Fails Lint/Flake Test!!!!\n";
         rprint "Do you wish to fix the errors yourself or you want them automagically fixed?";
         rprint "Enter Yes -> 1 or No -> 2";
         select yn in "Yes" "No"; do
         case $yn in
-                Yes ) $(which autopep8) -i -a -a --ignore=E501,E303,F405,F403,E265,E128 $file;
+                Yes ) $(command -v autopep8) -i -a -a --ignore=E501,E303,F405,F403,E265,E128 "${file}";
                      gprint "FIXED....";
                      break;;
-                No ) RANDTIME=$[($RANDOM%10)+1];
+                No ) RANDTIME=$(((RANDOM%10)+1));
                      rprint "Nonconformist will be punished.";
                      rprint "Wait ${RANDTIME}s.....";
                      sleep "${RANDTIME}s";
