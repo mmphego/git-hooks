@@ -9,12 +9,14 @@ GREEN=$(tput setaf 2)
 NORMAL=$(tput sgr0)
 
 declare -a PYTHON_PKG="(corr2 casperfpga mkat_fpga)"
+
 REPO=$(basename `git rev-parse --show-toplevel`) # get current repository name
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 HOST="cmc3.cbf.mkat.karoo.kat.ac.za"
 PORT="8080"
 TOKEN="cbftests"
 
+POSTMSG="Test executed by commit on ${REPO}, branch: ${BRANCH} made by ${USER} on `date`"
 function gprint (){
     printf "%s$1%s\n" "${GREEN}" "${NORMAL}";
 }
@@ -28,7 +30,8 @@ if curl --output /dev/null --silent --head --fail "http://${HOST}:${PORT}"; then
         if [ "${pkg}" = "${REPO}" ] && [ "${BRANCH}" = "devel" ]; then
             gprint "Running tests to check for new bugs on ${REPO}";
             gprint "Open: http://${HOST}:${PORT} to see progress...";
-            curl -X POST "http://${HOST}:${PORT}/generic-webhook-trigger/invoke?token=${TOKEN}" > /dev/null 2>&1;
+            curl -H "Content-Type: application/json" -X POST -d "${POSTMSG}" \
+                "http://${HOST}:${PORT}/generic-webhook-trigger/invoke?token=${TOKEN}" > /dev/null 2>&1;
         fi;
     done
 else
