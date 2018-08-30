@@ -26,7 +26,7 @@ cd / || exit 1;
 function delete_hooks() {
     while IFS= read -r -d '' file; do
         gprint "Deleting ${file} hooks";
-        chattr -R -i "${file}/hooks/";
+        chattr -RVf -i "${file}/hooks";
         rm -vrf "${file}/hooks/"*;
     done < <(find / -type d -name '.git' -print0)
 }
