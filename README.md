@@ -1,2 +1,2 @@
 # git-hooks
-My personal githooks
+My personal tricks

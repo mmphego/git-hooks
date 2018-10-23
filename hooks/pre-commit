@@ -7,16 +7,39 @@ RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 NORMAL=$(tput sgr0)
 
+
 # Allows us to read user input below, assigns stdin to keyboard
 exec < /dev/tty
 
+
+######### PRINT GREEN STD ##################
 function gprint (){
     printf "%s$1%s\n" "${GREEN}" "${NORMAL}";
 }
 
+######### PRINT RED STD ##################
 function rprint (){
     printf "%s$1%s\n" "${RED}" "${NORMAL}";
 }
+
+########## PIP VERSION #############
+# Verify that black is installed; if not, warn and exit.
+if [ -z $(which black) ]; then
+  rprint 'black not on path; can not format. Please install black:'
+  rprint '  python3.6 -m pip install black # Ensure that it is installed using python3.6+'
+  exit 2
+fi
+######### END PIP VERSION ##########
+
+
+########## PIPENV VERSION ##########
+# if [ -z $(pipenv run which black) ]; then
+#   echo 'black not on path; can not format. Please install black:'
+#   echo '  pipenv --three install black'
+#   exit 2
+# fi
+###### END PIPENV VERSION ##########
+
 
 if git rev-parse --abbrev-ref HEAD | grep -e 'master' > /dev/null 2>&1; then
     rprint "Please switch to another branch other than master";
@@ -29,29 +52,31 @@ fi
 for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.py$'); do
     gprint "Checking ${file} for syntax errors";
     $(command -v pycompile) "${file}";
-    $(command -v flake8) "${file}" --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265 --count;
+    $(command -v flake8) "${file}" --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265 --count > /dev/null 2>&1;
     if [ $? != 0 ]; then
-        rprint "Fails Lint/Flake Test!!!!";
-        rprint "Do you wish to fix the errors yourself or you want them automagically fixed?";
-        rprint "Enter Yes -> 1 or No -> 2";
-        select yn in "Yes" "No"; do
-        case $yn in
-                Yes ) $(command -v autopep8) -i -a -a --ignore=E501,E303,F405,F403,E265,E128 "${file}";
-                     gprint "FIXED....";
-                     break;;
-                No ) RANDTIME=$(((RANDOM%10)+1));
-                     rprint "Nonconformist will be punished.";
-                     rprint "Wait ${RANDTIME}s.....";
-                     sleep "${RANDTIME}s";
-                     rprint "You can by-pass this hook by appending -n or --no-verify";
-                     rprint "eg: git commit --no-verify";
-                     rprint " -----------NOT RECOMMENDED----------- ";
-                     exit 1;;
-            esac
-        done
-    else
-        gprint "Passed flake/lint code check." ;
-        exit 0
+        rprint "Fails linting Test!!!!";
+        rprint "Will automagically make the fixes"
+        black -l 120 -v --fast "${file}"
+    #     rprint "Do you wish to fix the errors yourself or you want them automagically fixed?";
+    #     rprint "Enter Yes -> 1 or No -> 2";
+    #     select yn in "Yes" "No"; do
+    #     case $yn in
+    #             Yes ) $(command -v autopep8) -i -a -a --ignore=E501,E303,F405,F403,E265,E128 "${file}";
+    #                  gprint "FIXED....";
+    #                  break;;
+    #             No ) RANDTIME=$(((RANDOM%10)+1));
+    #                  rprint "Nonconformist will be punished.";
+    #                  rprint "Wait ${RANDTIME}s.....";
+    #                  sleep "${RANDTIME}s";
+    #                  rprint "You can by-pass this hook by appending -n or --no-verify";
+    #                  rprint "eg: git commit --no-verify";
+    #                  rprint " -----------NOT RECOMMENDED----------- ";
+    #                  exit 1;;
+    #         esac
+    #     done
+    # else
+    #     gprint "Passed flake/lint code check." ;
+    #     exit 0
     fi
 done
 exit 0
