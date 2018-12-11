@@ -2,7 +2,7 @@
 # Force everyone to comply and use git-hooks!!!!
 # Author: Mpho Mphego <mmphego@ska.ac.za>
 
-set -i
+# set -i
 
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root" 1>&2
@@ -27,8 +27,8 @@ function delete_hooks() {
     while IFS= read -r -d '' file; do
         gprint "Deleting ${file} hooks";
         # Read more about chattr https://linoxide.com/how-tos/change-attributes-of-file/
-        chattr -RVf -i "${file}/hooks";
-        rm -vrf "${file}/hooks/"*;
+        # chattr -RVf -i "${file}/hooks";
+        rm -vrf -- "${file}/hooks/"*;
     done < <(find / -type d -name '.git' -print0)
 }
 
@@ -36,7 +36,7 @@ function install_hooks(){
     while IFS= read -r -d '' file; do
         cd "${file}" && cd ..;
         git init -q;
-        chattr -R +i "${file}/hooks/";
+        # chattr -R +i "${file}/hooks/";
         gprint "${file}: Hook installed";
         if [ -f "${file}/hooks/pre-commit" ]; then
             gprint "Hook created!!!"
@@ -57,5 +57,5 @@ else
     fi
     gprint "Available functions: delete_hooks and install_hooks";
     gprint "Usage: sudo $0 delete_hooks or $0 install_hooks"
-    exit 1
+    exit 1;
 fi
