@@ -69,34 +69,39 @@ fi
 
 
 #/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
-gprint "Checking ${file} for syntax errors"
+
+gprint "Checking files for syntax errors\n"
 # Python Files
 for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.py$'); do
     $(command -v pycompile) "${file}";
-    $(command -v flake8) "${file}" --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265 \
-        --count > /dev/null 2>&1;
-    if [ $? != 0 ]; then
+    if ! $(command -v flake8) "${file}" --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265 \
+        --count > /dev/null 2>&1; then
         rprint "${file} linting Failed!";
         rprint "Will automagically make the fixes"
-        [ $(which black) >/dev/null ] && $(which black) -l 120 -v --fast "${file}" || exit 1;
+        if [ ! $(command -v black) ]; then
+            $(which black) -l 120 -v --fast "${file}"
+        else
+            exit 1;
+        fi
     fi
 done
 
 # Shell scripts
 for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.sh$'); do
-    [ -z $(which shellcheck) ] && shellcheck "${file}"
-    if [ $? != 0 ]; then
-        rprint "${file} linting Failed!";
-        exit 1;
+    if [ -f "$(command -v shellcheck)" ]; then
+        if ! shellcheck "${file}"; then
+            rprint "${file} linting Failed!";
+            exit 1;
+        fi
     fi
 done
 
 # Dockerfiles
-for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\Docker*' | sed 's@.*/@@'); do
-    [ -z $(which docker) ] && docker run --rm -i hadolint/hadolint < "${file}"
-    if [ $? != 0 ]; then
-        rprint "${file} linting Failed!";
-        exit 1;
+for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\Docker*'); do
+    if [ -f "$(command -v docker)" ]; then
+        if ! "$(command -v docker)" run --rm -i hadolint/hadolint < "${file}"; then
+            rprint "${file} linting Failed!";
+            exit 1;
+        fi
     fi
 done
-
