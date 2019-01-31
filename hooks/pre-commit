@@ -20,10 +20,11 @@ function rprint (){
     printf "%s$1%s\n" "${RED}" "${NORMAL}";
 }
 
-# Find all staged files
-PYTHON_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.py$')
-SHELL_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.sh$')
-DOCKER_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -e '\Docker*' | sed 's@.*/@@')
+# # Find all staged files
+# PYTHON_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.py$')
+# SHELL_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.sh$')
+# YAML_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.yml$')
+# DOCKER_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -e '\Docker*' | sed 's@.*/@@')
 
 if git rev-parse --abbrev-ref HEAD | grep -e 'master' > /dev/null 2>&1; then
     rprint "Please switch to another branch other than master";
@@ -43,8 +44,15 @@ fi
 
 # Verify that flake8 is installed; if not, warn and exit.
 if ! command -v flake8 >/dev/null; then
-  rprint 'flake8 not on path; can not format. Please install black:'
+  rprint 'flake8 not on path; can not format. Please install flake8:'
   rprint '  pip install flake8'
+  exit 2
+fi
+
+# Verify that yamllint is installed; if not, warn and exit.
+if ! command -v yamllint >/dev/null; then
+  rprint 'yamllint not on path; can not format. Please install yamllint:'
+  rprint '  pip install yamllint'
   exit 2
 fi
 ######### END PIP VERSION ##########
@@ -104,4 +112,12 @@ for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\Docker
             exit 1;
         fi
     fi
+done
+
+# yaml
+for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.yml$'); do
+      if ! "$(command -v yamllint)" "${file}"; then
+            rprint "${file} linting Failed!";
+            exit 1;
+      fi
 done
