@@ -23,7 +23,7 @@ function rprint (){
 # # Find all staged files
 # PYTHON_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.py$')
 # MARKDOWN_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.md$')
-# SHELL_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.sh$')
+# YAML_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.yml$')
 # DOCKER_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -e '\Docker*' | sed 's@.*/@@')
 
 if git rev-parse --abbrev-ref HEAD | grep -e 'master' > /dev/null 2>&1; then
@@ -34,13 +34,7 @@ if git rev-parse --abbrev-ref HEAD | grep -e 'master' > /dev/null 2>&1; then
     exit 1
 fi
 
-# ########## PYTHON LINTER #############
-# # Verify that black is installed; if not, warn and exit.
-# if ! command -v black >/dev/null; then
-#   rprint 'black not on path; can not format. Please install black:'
-#   rprint '  python3 -m pip install black # Ensure that it is installed using python3.6+'
-#   exit 2
-# fi
+# ########## PYTHON LINTERS #############
 
 # Verify that flake8 is installed; if not, warn and exit.
 if ! command -v flake8 >/dev/null; then
@@ -48,23 +42,14 @@ if ! command -v flake8 >/dev/null; then
   rprint '  pip install flake8'
   exit 2
 fi
-# ########## PYTHON LINTER #############
 
-# ########## CPP LINTER #############
-# # Verify that black is installed; if not, warn and exit.
-# if ! command -v black >/dev/null; then
-#   rprint 'black not on path; can not format. Please install black:'
-#   rprint '  python3 -m pip install black # Ensure that it is installed using python3.6+'
-#   exit 2
-# fi
-
-# Verify that flake8 is installed; if not, warn and exit.
-if ! command -v flake8 >/dev/null; then
-  rprint 'cpplint not on path; can not format. Please install cpplint:'
-  rprint '  pip install cpplint'
+# Verify that yamllint is installed; if not, warn and exit.
+if ! command -v yamllint >/dev/null; then
+  rprint 'yamllint not on path; can not format. Please install yamllint:'
+  rprint '  pip install yamllint'
   exit 2
 fi
-########## CPP LINTER #############
+######### END PYTHON LINTER ##########
 
 ########## SHELLCHECK VERSION ############
 # Verify that shellcheck is installed; if not, warn and exit.
@@ -83,11 +68,10 @@ if ! command -v docker >/dev/null ; then
   exit 2
 fi
 ######### END DOCKERFILE VERSION #########
-
-
 #/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
 
-gprint "Checking files for syntax errors\n"
+gprint "Checking files for syntax errors."
+
 # Python Files
 for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.py$'); do
     $(command -v pycompile) "${file}";
@@ -125,10 +109,16 @@ done
 
 # Markdown
 for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.md$'); do
-    if [ -f "$(command -v docker)" ]; then
-        if ! "$(command -v docker)" run --rm -i mmphego/markdownlint "${file}"; then
-            rprint "${file} linting Failed!";
-            exit 1;
-        fi
+    if ! "$(command -v docker)" run --rm -i mmphego/markdownlint "${file}"; then
+        rprint "${file} linting Failed!";
+        exit 1;    
     fi
+
+# yaml
+for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.yml$'); do
+    if ! "$(command -v yamllint)" "${file}"; then
+        rprint "${file} linting Failed!";
+        exit 1;
+    fi
+gprint "No Lint Errors Found!!!"
 done
