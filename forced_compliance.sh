@@ -14,11 +14,11 @@ GREEN=$(tput setaf 2)
 NORMAL=$(tput sgr0)
 
 function gprint (){
-    printf "%s$1%s\n" "${GREEN}" "${NORMAL}";
+    echo "${GREEN}$1${NORMAL}";
 }
 
 function rprint (){
-    printf "%s$1%s\n" "${RED}" "${NORMAL}";
+    echo "${RED}$1${NORMAL}";
 }
 
 cd / || exit 1;
