@@ -66,6 +66,7 @@ fi
 if ! command -v shellcheck >/dev/null ; then
   rprint 'shellcheck not on path; can not format. Please install shellcheck:'
   rprint '  `apt-get install shellcheck`'
+  rprint 'or run:>> docker run -v "$PWD:/mnt" koalaman/shellcheck'
   exit 2
 fi
 ######### END SHELLCHECK VERSION #########
@@ -85,36 +86,29 @@ gprint "Checking files for syntax errors."
 
 # Python Files
 for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.py$'); do
-    $(command -v pycompile) "${file}";
-    if ! $(command -v flake8) "${file}" --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265 \
-        --count > /dev/null 2>&1; then
+    if ! $(command -v pycompile) "${file}"; then
+        rprint "${file} compile Failed!";
+    fi
+
+    if ! $(command -v flake8) "${file}" --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265; then
         rprint "${file} linting Failed!";
-        rprint "Will automagically make the fixes"
-        if [ ! $(command -v black) ]; then
-            $(which black) -l 120 -v --fast "${file}"
-        else
-            exit 1;
-        fi
+        exit 1;
     fi
 done
 
 # Shell scripts
 for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.sh$'); do
-    if [ -f "$(command -v shellcheck)" ]; then
-        if ! shellcheck "${file}"; then
-            rprint "${file} linting Failed!";
-            exit 1;
-        fi
+    if ! shellcheck "${file}"; then
+        rprint "${file} linting Failed!";
+        exit 1;
     fi
 done
 
 # Dockerfiles
 for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\Docker*'); do
-    if [ -f "$(command -v docker)" ]; then
-        if ! "$(command -v docker)" run --rm -i hadolint/hadolint < "${file}"; then
-            rprint "${file} linting Failed!";
-            exit 1;
-        fi
+    if ! "$(command -v docker)" run --rm -i hadolint/hadolint < "${file}"; then
+        rprint "${file} linting Failed!";
+        exit 1;
     fi
 done
 
@@ -124,6 +118,7 @@ for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.md$')
         rprint "${file} linting Failed!";
         exit 1;
     fi
+done
 
 # yaml
 for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.yml$'); do
@@ -131,7 +126,6 @@ for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.yml$'
         rprint "${file} linting Failed!";
         exit 1;
     fi
-gprint "No Lint Errors Found!!!"
 done
 
 # cpp
@@ -140,6 +134,4 @@ for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.c$|\.
         rprint "${file} linting Failed!";
         exit 1;
     fi
-
-gprint "No Linting Errors Found!!!"
 done
