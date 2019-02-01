@@ -33,15 +33,15 @@ function delete_hooks() {
 }
 
 function install_hooks(){
+    git config --system  init.templatedir "${PWD}" || true;
     while IFS= read -r -d '' file; do
         cd "${file}" && cd ..;
         git init -q;
         # chattr -R +i "${file}/hooks/";
-        gprint "${file}: Hook installed";
-        if [ -f "${file}/hooks/pre-commit" ]; then
-            gprint "Hook created!!!"
+        if [ ! -f "${file}/hooks/pre-commit" ]; then
+            rprint "${file}: Failed to create a hook" ;
         else
-            rprint "Failed to create a hook"
+            gprint "Hook installed :${file}";
         fi
     done < <(find / -type d -name '.git' -print0)
 }
