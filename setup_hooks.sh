@@ -4,11 +4,6 @@
 
 # set -i
 
-if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root" 1>&2
-   exit 1
-fi
-
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 NORMAL=$(tput sgr0)
@@ -21,29 +16,31 @@ function rprint (){
     echo "${RED}$1${NORMAL}";
 }
 
+sudo git config --system init.templatedir "${PWD}";
+COMMIT_TEMPLATE="${PWD}/templates/git-commit-template.txt"
+if [ -f "${COMMIT_TEMPLATE}" ]; then
+    sudo git config --system commit.template "${COMMIT_TEMPLATE}";
+fi
+
 cd / || exit 1;
 
 function delete_hooks() {
-    while IFS= read -r -d '' file; do
-        gprint "Deleting ${file} hooks";
-        # Read more about chattr https://linoxide.com/how-tos/change-attributes-of-file/
-        # chattr -RVf -i "${file}/hooks";
-        rm -vrf -- "${file}/hooks/"*;
-    done < <(find / -type d -name '.git' -print0)
+    find /home -name ".git" -type d -prune -exec dirname {} \; | while read -r DIR;
+        do gprint "Deleting ${DIR} git hooks";
+        sudo rm -vrf -- "${DIR}/hooks/"*;
+    done
 }
 
 function install_hooks(){
-    git config --system  init.templatedir "${PWD}" || true;
-    while IFS= read -r -d '' file; do
-        cd "${file}" && cd ..;
-        git init -q;
-        # chattr -R +i "${file}/hooks/";
-        if [ ! -f "${file}/hooks/pre-commit" ]; then
-            rprint "${file}: Failed to create a hook" ;
+
+    find /home -name ".git" -type d -prune -exec dirname {} \; | while read -r DIR;
+        do git init "${DIR}";
+        if [ ! -f "${DIR}/.git/hooks/pre-commit" ]; then
+            rprint "${DIR}: Failed to create a hook" ;
         else
-            gprint "Hook installed :${file}";
+            gprint "Hook installed in ${DIR}";
         fi
-    done < <(find / -type d -name '.git' -print0)
+    done
 }
 
 # Check if the function exists (bash specific)
