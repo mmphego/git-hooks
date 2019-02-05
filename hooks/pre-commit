@@ -23,6 +23,7 @@ function rprint (){
 # # Find all staged files
 # PYTHON_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.py$')
 # MARKDOWN_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.md$')
+# YAML_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.tex$')
 # YAML_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.yml$')
 # CPP_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.c$')
 # DOCKER_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -e '\Docker*' | sed 's@.*/@@')
@@ -61,7 +62,7 @@ fi
 ######### END PYTHON LINTER ##########
 
 
-########## SHELLCHECK VERSION ############
+########## APT VERSION ############
 # Verify that shellcheck is installed; if not, warn and exit.
 if ! command -v shellcheck >/dev/null ; then
   rprint 'shellcheck not on path; can not format. Please install shellcheck:'
@@ -69,7 +70,14 @@ if ! command -v shellcheck >/dev/null ; then
   rprint 'or run:>> docker run -v "$PWD:/mnt" koalaman/shellcheck'
   exit 2
 fi
-######### END SHELLCHECK VERSION #########
+
+# Verify that chktex is installed; if not, warn and exit.
+if ! command -v chktex >/dev/null ; then
+  rprint 'chktex not on path; can not format. Please install chktex:'
+  rprint '  `apt-get install chktex`'
+  exit 2
+fi
+######### END APT VERSION #########
 
 
 ########## DOCKERFILE VERSION ############
@@ -98,7 +106,15 @@ done
 
 # Shell scripts
 for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.sh$'); do
-    if ! shellcheck "${file}"; then
+    if ! "$(command -v shellcheck)" "${file}"; then
+        rprint "${file} linting Failed!";
+        exit 1;
+    fi
+done
+
+# latex files
+for file in $(git diff --cached --name-only --diff-filter=ACM | grep -e '\.tex$'); do
+    if ! "$(command -v chktex)" "${file}"; then
         rprint "${file} linting Failed!";
         exit 1;
     fi
