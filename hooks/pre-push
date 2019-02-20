@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Git pre-push hook, that will automagically run a Jenkins build.
+AUTHOR="Mpho Mphego <mmphego@ska.ac.za>"
+
+set -e pipeline
+
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+NORMAL=$(tput sgr0)
+gecho (){
+    echo "${GREEN}$1${NORMAL}";
+}
+
+recho (){
+    echo "${RED}$1${NORMAL}";
+}
+
+# Only run pre-push when hooks are installed on dbelab or cmc
+if [[ $(hostname -I) == *"10.8"* ]] || [[ $(hostname -I) == *"10.103"* ]]; then
+    declare -a PYTHON_PKG="(corr2 casperfpga mkat_fpga)"
+    # declare -a INSTRUMENTS="(bc8n856M1k_jenkins bc8n856M4k_jenkins bc8n856M32k_jenkins)"
+    REPO=$(basename "$(git rev-parse --show-toplevel)") # get current repository name
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    HOST="cmc3.cbf.mkat.karoo.kat.ac.za"
+    PORT="8080"
+    TOKEN="cbftests"
+
+    JENKINS_API="http://${HOST}:${PORT}/generic-webhook-trigger/invoke?token=${TOKEN}"
+    POSTMSG="Test executed by commit on ${REPO}, branch: ${BRANCH} made by ${USER} on $(date)"
+
+    if curl --output /dev/null --silent --head --fail "http://${HOST}:${PORT}"; then
+        for pkg in "${PYTHON_PKG[@]}"; do
+            if [ "${pkg}" == "${REPO}" ] && [ "${BRANCH}" == "devel" ]; then
+                gecho "Running tests to check for ${REPO}";
+                gecho "Link: http://${HOST}:${PORT} to view build progress...";
+                curl -H "Content-Type: application/json" -X POST \
+                    -d '{"RUN_INSTRUMENT":"bc8n856M1k_jenkins"}' \
+                    -d "${POSTMSG}" "${JENKINS_API}"
+            fi;
+        done
+    else
+        recho "http://${HOST}:${PORT} IS DOWN!!!!!!";
+        recho "Contact: ${AUTHOR}";
+    fi
+fi
+
+
+
