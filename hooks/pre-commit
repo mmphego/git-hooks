@@ -21,13 +21,13 @@ function rprint (){
 }
 
 # # Find all staged files
-PYTHON_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.py$')
-SHELL_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.sh$')
-MARKDOWN_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.md$')
-TEX_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.tex$')
-YAML_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.yml$')
-CPP_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.c$')
-DOCKER_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep --color=never -e '\Docker*' | sed 's@.*/@@')
+declare -a PYTHON_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.py$')
+declare -a SHELL_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.sh$')
+declare -a MARKDOWN_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.md$')
+declare -a TEX_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.tex$')
+declare -a YAML_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.yml$')
+declare -a CPP_FILES=$(git diff --name-only --cached --diff-filter=AM | grep --color=never '.c$')
+declare -a DOCKER_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep --color=never -e '\Docker*' | sed 's@.*/@@')
 
 if git rev-parse --abbrev-ref HEAD | grep -e 'master' > /dev/null 2>&1; then
     rprint "Please switch to another branch other than master";
@@ -37,7 +37,7 @@ if git rev-parse --abbrev-ref HEAD | grep -e 'master' > /dev/null 2>&1; then
 fi
 
 # ########## PYTHON LINTERS #############
-if $PYTHON_FILES; then
+if [ -n "${PYTHON_FILES}" ]; then
   # Verify that flake8 is installed; if not, warn and exit.
     if ! command -v flake8 >/dev/null; then
     rprint 'flake8 not on path; can not format. Please install flake8:'
@@ -46,7 +46,7 @@ if $PYTHON_FILES; then
     fi
 fi
 
-if $YAML_FILES; then
+if [ -n "${YAML_FILES}" ]; then
     # Verify that yamllint is installed; if not, warn and exit.
     if ! command -v yamllint >/dev/null; then
       rprint 'yamllint not on path; can not format. Please install yamllint:'
@@ -55,7 +55,7 @@ if $YAML_FILES; then
     fi
 fi
 
-if $CPP_FILES; then
+if [ -n "${CPP_FILES}" ]; then
     # Verify that cpplint is installed; if not, warn and exit.
     if ! command -v cpplint >/dev/null; then
       rprint 'cpplint not on path; can not format. Please install cpplint:'
@@ -67,7 +67,7 @@ fi
 
 
 ########## APT VERSION ############
-if $SHELL_FILES; then
+if [ -n "${SHELL_FILES}" ]; then
     # Verify that shellcheck is installed; if not, warn and exit.
     if ! command -v shellcheck >/dev/null ; then
       rprint 'shellcheck not on path; can not format. Please install shellcheck:'
@@ -77,7 +77,7 @@ if $SHELL_FILES; then
     fi
 fi
 
-if $TEX_FILES; then
+if [ -n "${TEX_FILES}" ]; then
     # Verify that chktex is installed; if not, warn and exit.
     if ! command -v chktex >/dev/null ; then
       rprint 'chktex not on path; can not format. Please install chktex:'
@@ -89,7 +89,7 @@ fi
 
 
 ########## DOCKERFILE VERSION ############
-if $DOCKER_FILES; then
+if [ -n "${DOCKER_FILES}" ]; then
     # Verify that docker is installed; if not, warn and exit.
     if ! command -v docker >/dev/null ; then
       rprint 'docker not on path; can not format. Please install docker:'
@@ -103,7 +103,7 @@ fi
 gprint "Checking files for syntax errors."
 
 # Python Files
-for file in $PYTHON_FILES; do
+for file in "${PYTHON_FILES[@]}"; do
     if ! $(command -v pycompile) "${file}"; then
         rprint "${file} compile Failed!";
     fi
@@ -115,7 +115,7 @@ for file in $PYTHON_FILES; do
 done
 
 # Shell scripts
-for file in $SHELL_FILES; do
+for file in "${SHELL_FILES[@]}"; do
     if ! "$(command -v shellcheck)" "${file}"; then
         rprint "${file} linting Failed!";
         exit 1;
@@ -123,7 +123,7 @@ for file in $SHELL_FILES; do
 done
 
 # latex files
-for file in $TEX_FILES; do
+for file in "${TEX_FILES[@]}"; do
     if ! "$(command -v chktex)" "${file}"; then
         rprint "${file} linting Failed!";
         exit 1;
@@ -131,7 +131,7 @@ for file in $TEX_FILES; do
 done
 
 # Dockerfiles
-for file in $DOCKER_FILES; do
+for file in "${DOCKER_FILES[@]}"; do
     if ! "$(command -v docker)" run --rm -ti hadolint/hadolint < "${file}"; then
         rprint "${file} linting Failed!";
         exit 1;
@@ -139,7 +139,7 @@ for file in $DOCKER_FILES; do
 done
 
 # Markdown
-for file in $MARKDOWN_FILES; do
+for file in "${MARKDOWN_FILES[@]}"; do
     if ! "$(command -v docker)" run --rm -it -v "$(pwd):/app" mmphego/markdownlint "${file}"; then
         rprint "${file} linting Failed!";
         exit 1;
@@ -147,7 +147,7 @@ for file in $MARKDOWN_FILES; do
 done
 
 # yaml
-for file in $YAML_FILES; do
+for file in "${YAML_FILES[@]}"; do
     if ! "$(command -v yamllint)" "${file}"; then
         rprint "${file} linting Failed!";
         exit 1;
@@ -155,7 +155,7 @@ for file in $YAML_FILES; do
 done
 
 # cpp
-for file in $CPP_FILES; do
+for file in "${CPP_FILES[@]}"; do
     if ! "$(command -v cpplint)" "${file}"; then
         rprint "${file} linting Failed!";
         exit 1;
