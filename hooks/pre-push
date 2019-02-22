@@ -18,7 +18,7 @@ recho (){
 # Only run pre-push when hooks are installed on dbelab or cmc
 if [[ $(hostname -I) == *"10.8"* ]] || [[ $(hostname -I) == *"10.103"* ]]; then
     declare -a PYTHON_PKG="(corr2 casperfpga mkat_fpga)"
-    # declare -a INSTRUMENTS="(bc8n856M1k_jenkins bc8n856M4k_jenkins bc8n856M32k_jenkins)"
+    declare -a INSTRUMENTS="(bc8n856M1k_jenkins bc8n856M4k_jenkins bc8n856M32k_jenkins)"
     REPO=$(basename "$(git rev-parse --show-toplevel)") # get current repository name
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
     HOST="cmc3.cbf.mkat.karoo.kat.ac.za"
@@ -33,9 +33,11 @@ if [[ $(hostname -I) == *"10.8"* ]] || [[ $(hostname -I) == *"10.103"* ]]; then
             if [ "${pkg}" == "${REPO}" ] && [ "${BRANCH}" == "devel" ]; then
                 gecho "Running tests to check for ${REPO}";
                 gecho "Link: http://${HOST}:${PORT} to view build progress...";
-                curl -H "Content-Type: application/json" -X POST \
-                    -d '{"RUN_INSTRUMENT":"bc8n856M1k_jenkins"}' \
-                    -d "${POSTMSG}" "${JENKINS_API}"
+                for i in "${INSTRUMENTS[@]}"; do
+                    curl -X POST -H "Content-Type: application/json"  \
+                        -d '{"RUN_INSTRUMENT":"'"$i"'"}' \
+                        -d "${POSTMSG}" "${JENKINS_API}";
+                done
             fi;
         done
     else
