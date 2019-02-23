@@ -8,11 +8,11 @@ RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 NORMAL=$(tput sgr0)
 
-function gprint (){
+gprint (){
     echo "${GREEN}$1${NORMAL}";
 }
 
-function rprint (){
+rprint (){
     echo "${RED}$1${NORMAL}";
 }
 
@@ -22,25 +22,27 @@ if [ -f "${COMMIT_TEMPLATE}" ]; then
     sudo git config --system commit.template "${COMMIT_TEMPLATE}";
 fi
 
-cd / || exit 1;
-
-function delete_hooks() {
-    find /home -name ".git" -type d -prune -exec dirname {} \; | while read -r DIR;
-        do gprint "Deleting ${DIR} git hooks";
-        sudo rm -vrf -- "${DIR}/hooks/"*;
+delete_hooks() {
+    find /home -name ".git" -type d -prune -exec dirname {} \; | while read -r DIR; do
+        gprint "Deleting git hooks: ${DIR}";
+        sudo rm -vrf -- "${DIR}/.git/hooks/"*;
     done
 }
 
-function install_hooks(){
-
+install_hooks() {
     find /home -name ".git" -type d -prune -exec dirname {} \; | while read -r DIR;
-        do git init "${DIR}";
+        do git init -q "${DIR}";
         if [ ! -f "${DIR}/.git/hooks/pre-commit" ]; then
             rprint "${DIR}: Failed to create a hook" ;
         else
-            gprint "Hook installed in ${DIR}";
+            gprint "Hook installed: ${DIR}";
+            if ! cmp --silent "${DIR}/.git/hooks/pre-commit" "$(dirname "${BASH_SOURCE[0]}")/hooks/pre-commit"; then
+                rprint "Failed to update Hooks."
+                rprint "    run sudo $0 delete_hooks"
+               fi
         fi
     done
+    gprint "####################### DONE #######################"
 }
 
 # Check if the function exists (bash specific)
