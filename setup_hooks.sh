@@ -42,7 +42,7 @@ install_hooks() {
                fi
         fi
     done
-    gprint "####################### DONE #######################"
+    [ $? -eq 0 ] && gprint "####################### DONE #######################"
 }
 
 # Check if the function exists (bash specific)
