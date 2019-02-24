@@ -101,63 +101,76 @@ fi
 #/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
 
 gprint "Checking files for syntax errors."
-
 # Python Files
-for file in "${PYTHON_FILES[@]}"; do
-    if ! $(command -v pycompile) "${file}"; then
-        rprint "${file} compile Failed!";
-    fi
+if [[ "${PYTHON_FILES[@]}" ]]; then
+    for file in "${PYTHON_FILES[@]}"; do
+        if ! $(command -v pycompile) "${file}"; then
+            rprint "${file} compile Failed!";
+        fi
 
-    if ! $(command -v flake8) "${file}" --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265; then
-        rprint "${file} linting Failed!";
-        exit 1;
-    fi
-done
+        if ! $(command -v flake8) "${file}" --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265; then
+            rprint "${file} linting Failed!";
+            exit 1;
+        fi
+    done
+fi
 
 # Shell scripts
-for file in "${SHELL_FILES[@]}"; do
-    if ! "$(command -v shellcheck)" "${file}"; then
-        rprint "${file} linting Failed!";
-        exit 1;
-    fi
-done
+if [[ "${SHELL_FILES[@]}" ]]; then
+    for file in "${SHELL_FILES[@]}"; do
+        if ! "$(command -v shellcheck)" "${file}"; then
+            rprint "${file} linting Failed!";
+            exit 1;
+        fi
+    done
+fi
 
 # latex files
-for file in "${TEX_FILES[@]}"; do
-    if ! "$(command -v chktex)" "${file}"; then
-        rprint "${file} linting Failed!";
-        exit 1;
-    fi
-done
+if [[ "${TEX_FILES[@]}" ]]; then
+    for file in "${TEX_FILES[@]}"; do
+        if ! "$(command -v chktex)" "${file}"; then
+            rprint "${file} linting Failed!";
+            exit 1;
+        fi
+    done
+fi
 
 # Dockerfiles
-for file in "${DOCKER_FILES[@]}"; do
-    if ! "$(command -v docker)" run --rm -ti hadolint/hadolint < "${file}"; then
-        rprint "${file} linting Failed!";
-        exit 1;
-    fi
-done
+if [[ "${DOCKER_FILES[@]}" ]]; then
+    for file in "${DOCKER_FILES[@]}"; do
+        if ! "$(command -v docker)" run --rm -ti hadolint/hadolint < "${file}"; then
+            rprint "${file} linting Failed!";
+            exit 1;
+        fi
+    done
+fi
 
 # Markdown
-for file in "${MARKDOWN_FILES[@]}"; do
-    if ! "$(command -v docker)" run --rm -it -v "$(pwd):/app" mmphego/markdownlint "${file}"; then
-        rprint "${file} linting Failed!";
-        exit 1;
-    fi
-done
+if [[ "${MARKDOWN_FILES[@]}" ]]; then
+    for file in "${MARKDOWN_FILES[@]}"; do
+        if ! "$(command -v docker)" run --rm -it -v "$(pwd):/app" mmphego/markdownlint "${file}"; then
+            rprint "${file} linting Failed!";
+            exit 1;
+        fi
+    done
+fi
 
 # yaml
-for file in "${YAML_FILES[@]}"; do
-    if ! "$(command -v yamllint)" "${file}"; then
-        rprint "${file} linting Failed!";
-        exit 1;
-    fi
-done
+if [[ "${YAML_FILES[@]}" ]]; then
+    for file in "${YAML_FILES[@]}"; do
+        if ! "$(command -v yamllint)" "${file}"; then
+            rprint "${file} linting Failed!";
+            exit 1;
+        fi
+    done
+fi
 
 # cpp
-for file in "${CPP_FILES[@]}"; do
-    if ! "$(command -v cpplint)" "${file}"; then
-        rprint "${file} linting Failed!";
-        exit 1;
-    fi
-done
+if [[ "${CPP_FILES[@]}" ]]; then
+    for file in "${CPP_FILES[@]}"; do
+        if ! "$(command -v cpplint)" "${file}"; then
+            rprint "${file} linting Failed!";
+            exit 1;
+        fi
+    done
+fi
