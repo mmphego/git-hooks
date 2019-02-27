@@ -1,15 +1,17 @@
 # <type>: (If applied, this commit will...) <subject> (Max 50 char)
 # |<----  Using a Maximum Of 50 Characters  ---->|
 
-
 # Explain why this change is being made
 # |<----   Try To Limit Each Line to a Maximum Of 72 Characters   ---->|
+
+# Edit and Uncomment below line to signoff your work: https://stackoverflow.com/a/35238070/6309
+# Signed-off-by: Your Name <your.email@example.com>
 
 # Provide links or keys to any relevant tickets, articles or other resources
 # Example: Github issue #23
 
 # --- COMMIT END ---
-# Type can be 
+# Type can be
 #    feat     (new feature)
 #    fix      (bug fix)
 #    refactor (refactoring production code)
