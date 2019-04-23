@@ -1,0 +1,6 @@
+#!/bin/bash
+
+test -n "$(grep '^Signed-off-by: ' "${1}")" >/dev/null || {
+        echo >&2 "The commit message must have a Signed-off-by line."
+        exit 1
+    }
