@@ -1,18 +1,33 @@
 # <type>: (If applied, this commit will...) <subject> (Max 50 char)
-# |<----  Using a Maximum Of 50 Characters  ---->|
+# Separate subject from body with a blank line.
+# Do not end the subject line with a .
+# Use the imperative mood in the subject line.
+#     E.g. “Fix the spam bug”
+#          “Update the getting started documentation”
+#          “This commit will ...”
 
-# Explain why this change is being made
+# |<----  Using a Maximum Of 50 Characters  ---->|
+# <<< SUBJECT GOES HERE >>>
+
+
+# Use the body to explain what and why, not how.
 # |<----   Try To Limit Each Line to a Maximum Of 72 Characters   ---->|
 
-# Edit and Uncomment below line to signoff your work: https://stackoverflow.com/a/35238070/6309
+# Provide links or keys to any relevant tickets, articles or other resources
+# Example: JIRA: [TICKET#23](https://....)
+
+
+# Edit and Uncomment below line to sign-off your work
+# https://stackoverflow.com/a/35238070/6309
+
 # Signed-off-by: Your Name <your.email@example.com>
 
-# Provide links or keys to any relevant tickets, articles or other resources
-# Example: Github issue #23
 
+# ------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 # --- COMMIT END ---
 # Type can be
-#    feat     (new feature)
+#    feature  (new feature)
 #    fix      (bug fix)
 #    refactor (refactoring production code)
 #    style    (formatting, missing semi colons, etc; no code change)

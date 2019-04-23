@@ -38,10 +38,10 @@ fi
 
 # ########## PYTHON LINTERS #############
 if [ -n "${PYTHON_FILES}" ]; then
-  # Verify that flake8 is installed; if not, warn and exit.
-    if ! command -v flake8 >/dev/null; then
-    rprint 'flake8 not on path; can not format. Please install flake8:'
-    rprint '  pip install flake8'
+  # Verify that black is installed; if not, warn and exit.
+    if ! command -v black >/dev/null; then
+    rprint 'black not on path; can not format. Please install black:'
+    rprint '  `pip install black`'
     exit 2
     fi
 fi
@@ -50,7 +50,7 @@ if [ -n "${YAML_FILES}" ]; then
     # Verify that yamllint is installed; if not, warn and exit.
     if ! command -v yamllint >/dev/null; then
       rprint 'yamllint not on path; can not format. Please install yamllint:'
-      rprint '  pip install yamllint'
+      rprint '  `pip install yamllint`'
       exit 2
     fi
 fi
@@ -59,7 +59,7 @@ if [ -n "${CPP_FILES}" ]; then
     # Verify that cpplint is installed; if not, warn and exit.
     if ! command -v cpplint >/dev/null; then
       rprint 'cpplint not on path; can not format. Please install cpplint:'
-      rprint '  pip install cpplint'
+      rprint '  `pip install cpplint`'
       exit 2
     fi
 fi
@@ -72,7 +72,6 @@ if [ -n "${SHELL_FILES}" ]; then
     if ! command -v shellcheck >/dev/null ; then
       rprint 'shellcheck not on path; can not format. Please install shellcheck:'
       rprint '  `apt-get install shellcheck`'
-      rprint 'or run:>> docker run -v "$PWD:/mnt" koalaman/shellcheck'
       exit 2
     fi
 fi
@@ -106,10 +105,12 @@ if [[ "${PYTHON_FILES[@]}" ]]; then
     for file in "${PYTHON_FILES[@]}"; do
         if ! $(command -v pycompile) "${file}"; then
             rprint "${file} compile Failed!";
+            exit 1;
         fi
 
-        if ! $(command -v flake8) "${file}" --max-line-length=100 --ignore=E501,E303,F405,F403,E128,E265; then
-            rprint "${file} linting Failed!";
+        gprint "Auto-formatting code with using black."
+        if ! $(command -v black) -l 90 "${file}"; then
+            rprint "${file} auto-formatting Failed!";
             exit 1;
         fi
     done
@@ -174,3 +175,5 @@ if [[ "${CPP_FILES[@]}" ]]; then
         fi
     done
 fi
+
+exit 0;
