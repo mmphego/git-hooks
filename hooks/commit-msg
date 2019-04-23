@@ -10,7 +10,5 @@ function rprint (){
 
 test -n "$(grep '^Signed-off-by: ' "${1}")" >/dev/null || {
         SIGNOFF="Signed-off-by: $(git config user.name) <$(git config user.email)>"
-        echo "" >> "$1"
-        echo "${SIGNOFF}" >> "$1"
-        exit 0
+        echo -e "\n${SIGNOFF}" >> "$1"
     }
