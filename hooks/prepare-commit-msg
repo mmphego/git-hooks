@@ -17,4 +17,10 @@ if [ -n "${BRANCH_NAME}" ]; then
     if [ -n "${BRANCH_NAME}" ] && ! [[ "${BRANCH_EXCLUDED}" -eq 1 ]] && ! [[ "${BRANCH_IN_COMMIT}" -ge 1 ]]; then
         echo -e "\nJIRA: [$BRANCH_NAME](https://skaafrica.atlassian.net/browse/${BRANCH_NAME})\n" >> "${1}"
     fi
+
+    test -n "$(grep '^Signed-off-by: ' "${1}")" >/dev/null || {
+        SIGNOFF="Signed-off-by: $(git config user.name) <$(git config user.email)>"
+        echo -e "\n${SIGNOFF}" >> "$1"
+    }
+
 fi
