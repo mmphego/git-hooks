@@ -15,6 +15,6 @@ if [ -n "${BRANCH_NAME}" ]; then
     BRANCH_IN_COMMIT=$(grep -c "\[$BRANCH_NAME\]" $1)
 
     if [ -n "${BRANCH_NAME}" ] && ! [[ "${BRANCH_EXCLUDED}" -eq 1 ]] && ! [[ "${BRANCH_IN_COMMIT}" -ge 1 ]]; then
-        sed -i.bak -e '1s/^/JIRA: [$BRANCH_NAME](https://skaafrica.atlassian.net/browse/${BRANCH_NAME})\n /' "${1}"
+        echo -e "\nJIRA: [$BRANCH_NAME](https://skaafrica.atlassian.net/browse/${BRANCH_NAME})\n" >> "${1}"
     fi
 fi
