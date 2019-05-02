@@ -20,7 +20,7 @@ if [ -n "${BRANCH_NAME}" ]; then
 
     test -n "$(grep '^Signed-off-by: ' "${1}")" >/dev/null || {
         SIGNOFF="Signed-off-by: $(git config user.name) <$(git config user.email)>"
-        echo -e "\n${SIGNOFF}" >> "$1"
+        echo -e "${SIGNOFF}" >> "$1"
     }
 
 fi
