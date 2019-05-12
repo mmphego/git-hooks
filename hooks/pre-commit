@@ -109,10 +109,13 @@ if [[ "${PYTHON_FILES[@]}" ]]; then
         fi
 
         gprint "Auto-formatting code with using black."
-        if ! $(command -v black) -l 90 "${file}"; then
-            rprint "${file} auto-formatting Failed!";
-            exit 1;
-        fi
+        for fi in ${file}; do
+            echo "file: $fi"
+            if ! $(command -v black) -l 90 "${fi}"; then
+                rprint "${file} auto-formatting Failed!";
+                exit 1;
+            fi
+        done
     done
 fi
 
