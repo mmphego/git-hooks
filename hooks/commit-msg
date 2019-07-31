@@ -8,7 +8,7 @@ function rprint (){
     echo -e >&2 "${RED}$1${NORMAL}";
 }
 
-test -n "$(grep '^Signed-off-by: ' "${1}")" >/dev/null || {
-        SIGNOFF="Signed-off-by: $(git config user.name) <$(git config user.email)>"
-        echo -e "\n${SIGNOFF}" >> "$1"
-    }
+# test -n "$(grep '^Signed-off-by: ' "${1}")" >/dev/null || {
+#         SIGNOFF="Signed-off-by: $(git config user.name) <$(git config user.email)>"
+#         echo -e "\n${SIGNOFF}" >> "$1"
+#     }

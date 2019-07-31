@@ -14,13 +14,15 @@ if [ -n "${BRANCH_NAME}" ]; then
     BRANCH_EXCLUDED=$(printf "%s\n" "${BRANCHES_TO_SKIP[@]}" | grep -c "^$BRANCH_NAME$")
     BRANCH_IN_COMMIT=$(grep -c "\[$BRANCH_NAME\]" $1)
 
+    if [[ ! "${BRANCH_NAME}" ]]; then
+        test -n "$(grep '^Signed-off-by: ' "${1}")" >/dev/null || {
+            SIGNOFF="Signed-off-by: $(git config user.name) <$(git config user.email)>"
+            echo -e "${SIGNOFF}" >> "$1"
+        }
+    fi
+
     if [ -n "${BRANCH_NAME}" ] && ! [[ "${BRANCH_EXCLUDED}" -eq 1 ]] && ! [[ "${BRANCH_IN_COMMIT}" -ge 1 ]]; then
         echo -e "\nJIRA: [$BRANCH_NAME](https://skaafrica.atlassian.net/browse/${BRANCH_NAME})\n" >> "${1}"
     fi
-
-    test -n "$(grep '^Signed-off-by: ' "${1}")" >/dev/null || {
-        SIGNOFF="Signed-off-by: $(git config user.name) <$(git config user.email)>"
-        echo -e "${SIGNOFF}" >> "$1"
-    }
 
 fi
