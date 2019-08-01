@@ -1,5 +1,13 @@
-# <type>: (If applied, this commit will...) <subject> (Max 50 char)
+# <------- Subject goes here ------->
 # Separate subject from body with a blank line.
+This PR does the following:
+
+- []
+- []
+- []
+- []
+
+# <type>: (If applied, this commit will...) <subject> (Max 50 char)
 # Do not end the subject line with a .
 # Use the imperative mood in the subject line.
 #     E.g. “Fix the spam bug”
@@ -16,12 +24,10 @@
 # Provide links or keys to any relevant tickets, articles or other resources
 # Example: JIRA: [TICKET#23](https://....)
 
-
 # Edit and Uncomment below line to sign-off your work
 # https://stackoverflow.com/a/35238070/6309
 
 # Signed-off-by: Your Name <your.email@example.com>
-
 
 # ------------------------------------------------------------------------
 # ------------------------------------------------------------------------
