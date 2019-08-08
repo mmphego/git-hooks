@@ -1,6 +1,6 @@
 # Git-hooks
 
-[![GitHub](https://img.shields.io/github/license/mmphego/medium-to-speech.svg)](LICENSE)
+[![GitHub](https://img.shields.io/github/license/mmphego/git-hooks.svg)](LICENSE)
 
 A simple shell script to support per-repository [Git hooks](https://git-scm.com/docs/githooks), checked into the actual repository that uses them.
 
