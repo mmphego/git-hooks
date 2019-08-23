@@ -1,5 +1,13 @@
 # Git-hooks
 
+# Deprecation Notice
+This project has been superseded by [pre-commit-hooks]()
+A framework for managing and maintaining multi-language pre-commit hooks,
+ which is far more flexible and feature-rich than this project can provide.
+
+It is recommended to use that instead.
+------------------------------------------------------------------------------
+
 [![GitHub](https://img.shields.io/github/license/mmphego/git-hooks.svg)](LICENSE)
 
 A simple shell script to support per-repository [Git hooks](https://git-scm.com/docs/githooks), checked into the actual repository that uses them.
