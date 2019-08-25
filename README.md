@@ -1,7 +1,7 @@
 # Git-hooks
 
 # Deprecation Notice
-This project has been superseded by [pre-commit-hooks]()
+This project has been superseded by [pre-commit-hooks](https://github.com/mmphego/pre-commit-hooks)
 A framework for managing and maintaining multi-language pre-commit hooks,
  which is far more flexible and feature-rich than this project can provide.
 
